@@ -2,7 +2,6 @@ package com.wipro.weatherdemo.common.utils;
 
 import com.wipro.weatherdemo.common.io.HttpTask;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import cz.msebera.android.httpclient.Header;

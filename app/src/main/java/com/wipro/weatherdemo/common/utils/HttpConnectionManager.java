@@ -3,14 +3,9 @@ package com.wipro.weatherdemo.common.utils;
 import android.content.Context;
 
 import com.loopj.android.http.RequestParams;
-import com.wipro.weatherdemo.R;
 import com.wipro.weatherdemo.common.io.HttpTask;
 
-import org.json.JSONArray;
-
 import java.lang.ref.WeakReference;
-
-import cz.msebera.android.httpclient.Header;
 
 /**
  * Created by illa on 19-10-2016.

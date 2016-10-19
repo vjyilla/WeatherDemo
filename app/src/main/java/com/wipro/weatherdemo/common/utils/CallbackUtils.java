@@ -1,6 +1,5 @@
 package com.wipro.weatherdemo.common.utils;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 /**

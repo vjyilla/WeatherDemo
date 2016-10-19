@@ -1,17 +1,22 @@
 package com.wipro.weatherdemo;
 
-import android.support.v7.app.ActionBarActivity;
+import android.content.Context;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.TextView;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.wipro.weatherdemo.common.dto.Forecast;
 import com.wipro.weatherdemo.common.dto.FiveWeather;
+import com.wipro.weatherdemo.common.dto.Forecast;
 import com.wipro.weatherdemo.common.dto.WeatherObject;
+import com.wipro.weatherdemo.common.ui.WeatherAdapter;
 import com.wipro.weatherdemo.common.utils.CallbackUtils;
-import com.wipro.weatherdemo.common.utils.DebugUtil;
 import com.wipro.weatherdemo.common.utils.HttpConnectionManager;
 
 import org.json.JSONObject;
@@ -27,12 +32,29 @@ import java.util.Locale;
 
 public class MainActivity extends ActionBarActivity {
     public HttpConnectionManager mHttpConnectionManager;
+    private Context mctx;
+    RecyclerView mWeatherRecycleview;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        mctx = this;
+        mWeatherRecycleview = (RecyclerView) findViewById(R.id.weather_recycleview);
         mHttpConnectionManager = new HttpConnectionManager(this);
+        findViewById(R.id.search_go_view).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                try {
+                    CharSequence searchViewResult = ((TextView) findViewById(R.id.search_go_view)).getText();
+                    if (searchViewResult != null) {
+                        mHttpConnectionManager.getWeatherApiRequest(getHttpWeatherCallBack(), searchViewResult.toString());
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
 
     }
 
@@ -58,66 +80,72 @@ public class MainActivity extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public CallbackUtils.HttpGetCallBack getHttpWeatherCallBack(){
+    public CallbackUtils.HttpGetCallBack getHttpWeatherCallBack() {
         return new CallbackUtils.HttpGetCallBack() {
             @Override
             public void setJsonObject(JSONObject jsonObject) {
 
-                try
-                {
-               List<WeatherObject> daysOfTheWeek = new ArrayList<WeatherObject>();
-                GsonBuilder builder = new GsonBuilder();
-                Gson gson = builder.create();
-                Forecast forecast = gson.fromJson(jsonObject.toString(), Forecast.class);
-                 if(forecast!=null)
-                  {
+                try {
+                    ArrayList<WeatherObject> daysOfTheWeek = new ArrayList<WeatherObject>();
+                    GsonBuilder builder = new GsonBuilder();
+                    Gson gson = builder.create();
+                    Forecast forecast = gson.fromJson(jsonObject.toString(), Forecast.class);
+                    if (forecast != null) {
 
-                    int[] everyday = new int[]{0, 0, 0, 0, 0, 0, 0};
-                    List<FiveWeather> weatherInfo = forecast.getList();
-                    for (int i = 0; i < weatherInfo.size(); i++) {
-                        String time = weatherInfo.get(i).getDt_txt();
+                        int[] everyday = new int[]{0, 0, 0, 0, 0, 0, 0};
+                        List<FiveWeather> weatherInfo = forecast.getList();
+                        for (int i = 0; i < weatherInfo.size(); i++) {
+                            String time = weatherInfo.get(i).getDt_txt();
 
 
-
-                        String shortDay = convertTimeToDay(time);
-                        String temp = weatherInfo.get(i).getMain().getTemp();
-                        String tempMin = weatherInfo.get(i).getMain().getTemp_min();
-                        if (convertTimeToDay(time).equals("Mon") && everyday[0] < 1) {
-                            daysOfTheWeek.add(new WeatherObject(shortDay, R.mipmap.ic_launcher ,temp, tempMin,weatherInfo.get(i).getListWeather().get(0).getDescription()));
-                            everyday[0] = 1;
-                        }
-                        if (convertTimeToDay(time).equals("Tue") && everyday[1] < 1) {
-                            daysOfTheWeek.add(new WeatherObject(shortDay, R.mipmap.ic_launcher ,temp, tempMin,weatherInfo.get(i).getListWeather().get(0).getDescription()));
-                            everyday[1] = 1;
-                        }
-                        if (convertTimeToDay(time).equals("Wed") && everyday[2] < 1) {
-                            daysOfTheWeek.add(new WeatherObject(shortDay, R.mipmap.ic_launcher ,temp, tempMin,weatherInfo.get(i).getListWeather().get(0).getDescription()));
-                            everyday[2] = 1;
-                        }
-                        if (convertTimeToDay(time).equals("Thu") && everyday[3] < 1) {
-                            daysOfTheWeek.add(new WeatherObject(shortDay, R.mipmap.ic_launcher ,temp, tempMin,weatherInfo.get(i).getListWeather().get(0).getDescription()));
-                            everyday[3] = 1;
-                        }
-                        if (convertTimeToDay(time).equals("Fri") && everyday[4] < 1) {
-                            daysOfTheWeek.add(new WeatherObject(shortDay, R.mipmap.ic_launcher ,temp, tempMin,weatherInfo.get(i).getListWeather().get(0).getDescription()));
-                            everyday[4] = 1;
-                        }
-                        if (convertTimeToDay(time).equals("Sat") && everyday[5] < 1) {
-                            daysOfTheWeek.add(new WeatherObject(shortDay, R.mipmap.ic_launcher ,temp, tempMin,weatherInfo.get(i).getListWeather().get(0).getDescription()));
-                            everyday[5] = 1;
-                        }
-                        if (convertTimeToDay(time).equals("Sun") && everyday[6] < 1) {
-                            daysOfTheWeek.add(new WeatherObject(shortDay, R.mipmap.ic_launcher ,temp, tempMin,weatherInfo.get(i).getListWeather().get(0).getDescription()));
-                            everyday[6] = 1;
+                            String shortDay = convertTimeToDay(time);
+                            String temp = weatherInfo.get(i).getMain().getTemp();
+                            String tempMin = weatherInfo.get(i).getMain().getTemp_min();
+                            if (convertTimeToDay(time).equals("Mon") && everyday[0] < 1) {
+                                daysOfTheWeek.add(new WeatherObject(shortDay, R.mipmap.ic_launcher, temp, tempMin, weatherInfo.get(i).getListWeather().get(0).getDescription()));
+                                everyday[0] = 1;
+                            }
+                            if (convertTimeToDay(time).equals("Tue") && everyday[1] < 1) {
+                                daysOfTheWeek.add(new WeatherObject(shortDay, R.mipmap.ic_launcher, temp, tempMin, weatherInfo.get(i).getListWeather().get(0).getDescription()));
+                                everyday[1] = 1;
+                            }
+                            if (convertTimeToDay(time).equals("Wed") && everyday[2] < 1) {
+                                daysOfTheWeek.add(new WeatherObject(shortDay, R.mipmap.ic_launcher, temp, tempMin, weatherInfo.get(i).getListWeather().get(0).getDescription()));
+                                everyday[2] = 1;
+                            }
+                            if (convertTimeToDay(time).equals("Thu") && everyday[3] < 1) {
+                                daysOfTheWeek.add(new WeatherObject(shortDay, R.mipmap.ic_launcher, temp, tempMin, weatherInfo.get(i).getListWeather().get(0).getDescription()));
+                                everyday[3] = 1;
+                            }
+                            if (convertTimeToDay(time).equals("Fri") && everyday[4] < 1) {
+                                daysOfTheWeek.add(new WeatherObject(shortDay, R.mipmap.ic_launcher, temp, tempMin, weatherInfo.get(i).getListWeather().get(0).getDescription()));
+                                everyday[4] = 1;
+                            }
+                            if (convertTimeToDay(time).equals("Sat") && everyday[5] < 1) {
+                                daysOfTheWeek.add(new WeatherObject(shortDay, R.mipmap.ic_launcher, temp, tempMin, weatherInfo.get(i).getListWeather().get(0).getDescription()));
+                                everyday[5] = 1;
+                            }
+                            if (convertTimeToDay(time).equals("Sun") && everyday[6] < 1) {
+                                daysOfTheWeek.add(new WeatherObject(shortDay, R.mipmap.ic_launcher, temp, tempMin, weatherInfo.get(i).getListWeather().get(0).getDescription()));
+                                everyday[6] = 1;
+                            }
                         }
                     }
-                  }
 
-                    }
-                    catch (Exception e)
-                    {
+
+                    WeatherAdapter weatherAdapter = new WeatherAdapter(mctx, daysOfTheWeek);
+
+                    RecyclerView recyclerView = (RecyclerView) findViewById(R.id.weather_recycleview);
+                    recyclerView.setHasFixedSize(true);
+                    LinearLayoutManager horizontalLayoutManagaer
+                            = new LinearLayoutManager(MainActivity.this, LinearLayoutManager.HORIZONTAL, false);
+                    recyclerView.setLayoutManager(horizontalLayoutManagaer);
+                    recyclerView.setAdapter(weatherAdapter);
+
+
+                } catch (Exception e) {
                     e.printStackTrace();
-                    }
+                }
 
 
             }
@@ -130,27 +158,27 @@ public class MainActivity extends ActionBarActivity {
     }
 
 
-        private String convertTimeToDay(String time){
-            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:SSSS", Locale.getDefault());
-            String days = "";
-            try {
-                Date date = format.parse(time);
-                System.out.println("Our time " + date);
-                Calendar calendar = Calendar.getInstance();
-                calendar.setTime(date);
-                days = calendar.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.SHORT, Locale.getDefault());
-                System.out.println("Our time " + days);
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
-            return days;
+    private String convertTimeToDay(String time) {
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:SSSS", Locale.getDefault());
+        String days = "";
+        try {
+            Date date = format.parse(time);
+            System.out.println("Our time " + date);
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(date);
+            days = calendar.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.SHORT, Locale.getDefault());
+            System.out.println("Our time " + days);
+        } catch (ParseException e) {
+            e.printStackTrace();
         }
+        return days;
+    }
 
     @Override
     protected void onResume() {
 
         super.onResume();
 
-        mHttpConnectionManager.getWeatherApiRequest(getHttpWeatherCallBack(), "London,us" );
+        mHttpConnectionManager.getWeatherApiRequest(getHttpWeatherCallBack(), "London,us");
     }
 }

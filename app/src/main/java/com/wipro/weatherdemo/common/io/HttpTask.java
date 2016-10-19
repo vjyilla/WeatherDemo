@@ -3,7 +3,6 @@ package com.wipro.weatherdemo.common.io;
 import android.content.Context;
 import android.os.Handler;
 
-
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.RequestHandle;
