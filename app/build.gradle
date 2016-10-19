@@ -1,0 +1,38 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 23
+    buildToolsVersion "23.0.1"
+
+    defaultConfig {
+        applicationId "com.wipro.weatherdemo"
+        minSdkVersion 14
+        targetSdkVersion 23
+        versionCode 1
+        versionName "1.0"
+    }
+    buildTypes {
+
+        release {
+            buildConfigField "String", "WEATHER_API_KEY" , "\"0c63d787e619631d088bb467ff2240bc\""
+            buildConfigField "String", "WEATHER_SERVICE_URL" , "\"http://api.openweathermap.org/data/2.5/forecast\""
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+
+        debug{
+
+            buildConfigField "String", "WEATHER_API_KEY" , "\"0c63d787e619631d088bb467ff2240bc\""
+            buildConfigField "String", "WEATHER_SERVICE_URL" , "\"http://api.openweathermap.org/data/2.5/forecast\""
+
+        }
+    }
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile 'com.android.support:appcompat-v7:24.1.1'
+    compile 'com.loopj.android:android-async-http:1.4.9'
+    compile 'com.google.code.gson:gson:2.2.+'
+
+}
